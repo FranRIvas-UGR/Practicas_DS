@@ -1,0 +1,47 @@
+\documentclass{article}
+
+\title{Memoria Práctica 1}
+\author{Grupo 2.7}
+\date{Curso 2023-24}
+
+\begin{document}
+
+\maketitle
+
+\section{Introducción de la Práctica}
+En esta práctica, se implementará el patrón de diseño Factoría Abstracta junto con el patrón de diseño Método Factoría en Java. El objetivo es simular dos carreras simultáneas con el mismo número inicial ($N$) de bicicletas. El número de bicicletas no se conoce hasta que comienza la carrera. Durante las carreras de montaña y carretera, se retirará el 20\% y el 10\% de las bicicletas, respectivamente, antes de finalizar. Ambas carreras tendrán una duración exacta de 60 segundos, y todas las bicicletas se retirarán al mismo tiempo.
+
+Se seguirán las siguientes especificaciones:
+
+\begin{itemize}
+    \item Se implementarán las modalidades de montaña/carretera como las dos familias/estilos de productos.
+    \item Se definirá la interfaz Java \texttt{FactoriaCarreraYBicicleta} para declarar los métodos de fabricación públicos: \texttt{crearCarrera}, que devuelve un objeto de alguna subclase de la clase abstracta \texttt{Carrera}, y \texttt{crearBicicleta}, que devuelve un objeto de alguna subclase de la clase abstracta \texttt{Bicicleta}.
+    \item La clase \texttt{Carrera} tendrá al menos un atributo \texttt{ArrayList<Bicicleta>} con las bicicletas que participan en la carrera.
+    \item La clase \texttt{Bicicleta} tendrá al menos un identificador único de la bicicleta en una carrera.
+    \item Las clases factoría específicas heredarán de \texttt{FactoriaCarreraYBicicleta}, y cada una de ellas se especializará en un tipo de carreras y bicicletas: las carreras y bicicletas de montaña y las carreras y bicicletas de carretera. Por lo tanto, habrá dos clases factoría específicas: \texttt{FactoriaMontana} y \texttt{FactoriaCarretera}, que implementarán cada una de ellas los métodos de fabricación \texttt{crearCarrera} y \texttt{crearBicicleta}.
+    \item Se definirán las clases \texttt{Bicicleta} y \texttt{Carrera} como clases abstractas que se especializarán en clases concretas para que la factoría de montaña pueda crear productos \texttt{BicicletaMontana} y \texttt{CarreraMontana}, y la factoría de carretera pueda crear productos \texttt{BicicletaCarretera} y \texttt{CarreraCarretera}.
+\end{itemize}
+
+
+\section{Implementación de la Práctica}
+A continuación, se muestra el código de la implementación de la práctica.
+
+\begin{verbatim}
+    import java.util.ArrayList;
+ import java.util.Random;
+ 
+ // Interfaz FactoriaCarreraYBicicleta
+ interface FactoriaCarreraYBicicleta {
+    Random rand = new Random();
+    int NUM_BICICLETAS = rand.nextInt(100)+100;
+     Carrera crearCarrera();
+     Bicicleta crearBicicleta();
+ }
+ 
+...
+}
+\end{verbatim}
+
+\section{Conclusiones}
+En esta práctica, se ha implementado el patrón de diseño Factoría Abstracta junto con el patrón de diseño Método Factoría en Java. Se ha simulado el desarrollo de dos carreras simultáneas con el mismo número inicial de bicicletas. Se ha seguido el enunciado de la práctica y se han implementado las clases y métodos necesarios para cumplir con las especificaciones. Se ha comprobado que el código funciona correctamente y se ha obtenido el resultado esperado.
+\end{document}

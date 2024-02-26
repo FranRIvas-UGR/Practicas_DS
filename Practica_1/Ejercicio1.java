@@ -29,7 +29,7 @@ FactoriaCarretera, que implementarán cada una de ellas los métodos de fabricac
 crearCarrera y crearBicicleta.
 Se definirán las clases Bicicleta y Carrera como clases abstractas que se especiali-
 zarán en clases concretas para que la factoría de montaña pueda crear productos
-BicicletaMontana y CarreraMontana y la factoría de carretera pueda crear productos
+BicicletaMontana y CarreraMontana y la factoría de carretera pueda crear producto
 BicicletaCarretera y CarreraCarretera.
 
  */

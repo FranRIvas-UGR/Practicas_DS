@@ -58,44 +58,46 @@ class BeautifulSoupStrategy(ScrapeStrategy):
 
 
 class SeleniumStrategy(ScrapeStrategy):
-    def scrape(self, url):
-        response = requests.get(url)
-        if response.status_code == 200:
-            options = FirefoxOptions()
-            options.headless = True
-            driver = Firefox(options=options)
-            driver.get(url)
-            
-            final_scroll_button = driver.find_element(By.XPATH, '//button[@id="scroll-down-btn"]')
-            final_scroll_button.click()
-            
-            reject_button = driver.find_element(By.XPATH, '//button[@class="btn secondary reject-all"]')
-            reject_button.click()
-            
-            open_value_td = driver.find_element(By.XPATH, '//td[@data-test="OPEN-value"]')
-            close_value_td = driver.find_element(By.XPATH, '//td[@data-test="PREV_CLOSE-value"]')
-            volume = driver.find_element(By.XPATH, '//td[@data-test="TD_VOLUME-value"]')
-            market_capitalization = driver.find_element(By.XPATH, '//td[@data-test="MARKET_CAP-value"]')
-            
-            if not open_value_td:
-                return 'Precio de apertura no encontrado' 
-            if not close_value_td:
-                return 'Precio de cierre anterior no encontrado'
-            if not volume:
-                return 'Volumen no encontrado'
-            if not market_capitalization:
-                return 'Capitalización de Mercado no encontrada'
-            
-            open_value = open_value_td.text.strip()
-            close_value = close_value_td.text.strip()
-            volume = volume.text.strip()
-            market_capitalization = market_capitalization.text.strip()
-            driver.quit()
-            return open_value, close_value, volume, market_capitalization
-        else:
-            return f'Failed to retrieve the webpage, status code: {response.status_code}'
-        
-        
+    class_reject_button = '//button[@class="btn secondary reject-all"]'
+    class_open_value = '//td[@data-test="OPEN-value"]'
+    class_close_value = '//td[@data-test="PREV_CLOSE-value"]'
+    class_volume = '//td[@data-test="TD_VOLUME-value"]'
+    class_market_capitalization = '//td[@data-test="MARKET_CAP-value"]'
+    
+    # Constructor de la clase (crea el driver)
+    def __init__(self):
+        self.options = FirefoxOptions()
+        self.options.headless = True
+        self.driver = Firefox(options=self.options)
+    
+    def __del__(self):
+        self.driver.quit()
+    
+    def lanzarPagina(self, url):
+        self.driver.get(url)
+        return self.driver
+    
+    def rejectCookiesScrollDown(self, driver):  
+        scroll_down_button = driver.find_element(By.XPATH, '//button[@id="scroll-down-btn"]')
+        scroll_down_button.click()
+        reject_button = driver.find_element(By.XPATH, self.class_reject_button)
+        reject_button.click()
+        return driver
+    
+    def getValues(self, driver):
+        open_value_td = driver.find_element(By.XPATH, self.class_open_value)
+        close_value_td = driver.find_element(By.XPATH, self.class_close_value)
+        volume = driver.find_element(By.XPATH, self.class_volume)
+        market_capitalization = driver.find_element(By.XPATH, self.class_market_capitalization)
+        return open_value_td, close_value_td, volume, market_capitalization
+    
+    def stripValues(self, open_value_td, close_value_td, volume, market_capitalization):
+        open_value = open_value_td.text.strip()
+        close_value = close_value_td.text.strip()
+        volume = volume.text.strip()
+        market_capitalization = market_capitalization.text.strip()
+        return open_value, close_value, volume, market_capitalization
+    
     def export_to_json(self, data, filename):
         # Data es una lista de open_value, close_value, volume, market_capitalization
         with open(filename, 'w') as file:
@@ -105,6 +107,15 @@ class SeleniumStrategy(ScrapeStrategy):
             file.write(f'  "Volumen": "{data[2]}",\n')
             file.write(f'  "Capitalización de Mercado": "{data[3]}"\n')
             file.write('}\n')
+    
+    def scrape(self, url):
+        driver = self.lanzarPagina(url)
+        driver = self.rejectCookiesScrollDown(driver)
+        open_value_td, close_value_td, volume, market_capitalization = self.getValues(driver)
+        open_value, close_value, volume, market_capitalization = self.stripValues(open_value_td, close_value_td, volume, market_capitalization)
+        data = open_value, close_value, volume, market_capitalization
+        filename = 'Selenium.json'
+        self.export_to_json( data, filename)
         return filename
     
 
@@ -125,16 +136,13 @@ url = 'https://finance.yahoo.com/quote/TSLA'
 context = Context(SeleniumStrategy())
 context2 = Context(BeautifulSoupStrategy())
 
-open_value, close_value, volume, market_capitalization = context.scrape(url)
 open_value2, close_value2, volume2, market_capitalization2 = context2.scrape(url)
 
-data = [open_value, close_value, volume, market_capitalization]
 data2 = [open_value2, close_value2, volume2, market_capitalization2]
 
-filename = sys.argv[1]
-filename2 = sys.argv[2]
+filename = context.scrape(url)
+filename2 = sys.argv[1]
 
-context._strategy.export_to_json(data, filename)
 context2._strategy.export_to_json(data2, filename2)
 
 print(f'Exporto a {filename}')

@@ -76,6 +76,7 @@ class SeleniumStrategy(ScrapeStrategy):
     def lanzarPagina(self, url):
         self.driver.get(url)
         return self.driver
+        
     
     def rejectCookiesScrollDown(self, driver):  
         scroll_down_button = driver.find_element(By.XPATH, '//button[@id="scroll-down-btn"]')

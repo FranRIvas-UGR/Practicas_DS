@@ -41,7 +41,7 @@ BicicletaCarretera y CarreraCarretera.
  // Interfaz FactoriaCarreraYBicicleta
  interface FactoriaCarreraYBicicleta {
     Random rand = new Random();
-    int NUM_BICICLETAS = 10 * rand.nextInt(100);
+    int NUM_BICICLETAS = 10 * rand.nextInt(20);
     Carrera crearCarrera();
     Bicicleta crearBicicleta();
  }
@@ -143,7 +143,7 @@ class CarreraCarretera extends Carrera {
                 int numBicicletas = carreraMontana.bicicletas.size();
                 System.out.println("Número de bicicletas en la carrera de montaña: " + numBicicletas);
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(60);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -158,7 +158,7 @@ class CarreraCarretera extends Carrera {
                 int numBicicletas = carreraCarretera.bicicletas.size();
                 System.out.println("Número de bicicletas en la carrera de carretera: " + numBicicletas);
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(60);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

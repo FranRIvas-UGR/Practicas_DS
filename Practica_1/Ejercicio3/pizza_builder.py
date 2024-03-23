@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import tkinter as tk
 
 class Director:
     def __init__(self, builder):
@@ -11,7 +12,7 @@ class Director:
         self._builder.add_toppings()
 
 class PizzaBuilder(ABC):
-    def __init__(self):
+    def _init_(self):
         self.pizza = None
     
     def create_new_pizza(self):
@@ -68,17 +69,37 @@ class Pizza:
     def __str__(self):
         return f"Pizza specs:\nDough: {self.dough}\nSauce: {self.sauce}\nToppings: {', '.join(self.toppings)}"
 
-margherita_builder = MargheritaPizzaBuilder()
-director = Director(margherita_builder)
-director.make_pizza()
-print(margherita_builder.pizza)
 
-pepperoni_builder = PepperoniPizzaBuilder()
-director = Director(pepperoni_builder)
-director.make_pizza()
-print(pepperoni_builder.pizza)
+def make_pizza(builder):
+    director = Director(builder)
+    director.make_pizza()
+    return builder.pizza
 
-veggie_builder = VeggiePizzaBuilder()
-director = Director(veggie_builder)
-director.make_pizza()
-print(veggie_builder.pizza)
+def make_margherita():
+    return make_pizza(MargheritaPizzaBuilder())
+
+def make_pepperoni():
+    return make_pizza(PepperoniPizzaBuilder())
+
+def make_veggie():
+    return make_pizza(VeggiePizzaBuilder())
+
+def display_pizza(pizza):
+    result_label.config(text=str(pizza))
+
+root = tk.Tk()
+root.title("Pizza Builder")
+
+margherita_button = tk.Button(root, text="Margherita", command=lambda: display_pizza(make_margherita()))
+margherita_button.pack()
+
+pepperoni_button = tk.Button(root, text="Pepperoni", command=lambda: display_pizza(make_pepperoni()))
+pepperoni_button.pack()
+
+veggie_button = tk.Button(root, text="Veggie", command=lambda: display_pizza(make_veggie()))
+veggie_button.pack()
+
+result_label = tk.Label(root, text="")
+result_label.pack()
+
+root.mainloop()

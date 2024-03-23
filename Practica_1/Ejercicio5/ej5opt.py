@@ -13,37 +13,33 @@ class ScrapeStrategy():
         pass
 
 
-
 class BeautifulSoupStrategy(ScrapeStrategy):
-    def scrape(self, url):
+    def _get_soup(self, url):
         response = requests.get(url)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            open_value_td = soup.find('td', {'data-test': 'OPEN-value'})
-            close_value_td = soup.find('td', {'data-test': 'PREV_CLOSE-value'})
-            volume_value_td = soup.find('td', {'data-test': 'TD_VOLUME-value'})
-            market_cap_value_td = soup.find('td', {'data-test': 'MARKET_CAP-value'})
-
-            if not open_value_td:
-                return 'Open Value not found'
-
-            if not close_value_td:
-                return 'Close Value not found'
-
-            if not volume_value_td:
-                return 'Volume Value not found'
-            
-            if not market_cap_value_td:
-                return 'Market Cap Value not found'
-            
-            open_value = open_value_td.text.strip()
-            close_value = close_value_td.text.strip()
-            volume = volume_value_td.text.strip()
-            market_capitalization = market_cap_value_td.text.strip()
-            return open_value, close_value, volume, market_capitalization
-            
+            return BeautifulSoup(response.content, 'html.parser')
         else:
-            return f'Failed to retrieve the webpage, status code: {response.status_code}'
+            raise ValueError(f'Failed to retrieve the webpage, status code: {response.status_code}')
+    
+    def _find_elements(self, soup):
+        open_value_td = soup.find('td', {'data-test': 'OPEN-value'})
+        close_value_td = soup.find('td', {'data-test': 'PREV_CLOSE-value'})
+        volume_value_td = soup.find('td', {'data-test': 'TD_VOLUME-value'})
+        market_cap_value_td = soup.find('td', {'data-test': 'MARKET_CAP-value'})
+        return open_value_td, close_value_td, volume_value_td, market_cap_value_td
+    
+    def _extract_values(self, open_value_td, close_value_td, volume_value_td, market_cap_value_td):
+        open_value = open_value_td.text.strip() if open_value_td else 'Open Value not found'
+        close_value = close_value_td.text.strip() if close_value_td else 'Close Value not found'
+        volume = volume_value_td.text.strip() if volume_value_td else 'Volume Value not found'
+        market_capitalization = market_cap_value_td.text.strip() if market_cap_value_td else 'Market Cap Value not found'
+        return open_value, close_value, volume, market_capitalization
+    
+    def scrape(self, url):
+        soup = self._get_soup(url)
+        open_value_td, close_value_td, volume_value_td, market_cap_value_td = self._find_elements(soup)
+        open_value, close_value, volume, market_capitalization = self._extract_values(open_value_td, close_value_td, volume_value_td, market_cap_value_td)
+        return open_value, close_value, volume, market_capitalization
                 
     def export_to_json(self, data, filename):
         # Data es una lista de open_value, close_value, volume, market_capitalization
@@ -115,9 +111,7 @@ class SeleniumStrategy(ScrapeStrategy):
         open_value_td, close_value_td, volume, market_capitalization = self.getValues(driver)
         open_value, close_value, volume, market_capitalization = self.stripValues(open_value_td, close_value_td, volume, market_capitalization)
         data = open_value, close_value, volume, market_capitalization
-        filename = 'Selenium.json'
-        self.export_to_json( data, filename)
-        return filename
+        return data
     
 
 class Context:
@@ -137,13 +131,16 @@ url = 'https://finance.yahoo.com/quote/TSLA'
 context = Context(SeleniumStrategy())
 context2 = Context(BeautifulSoupStrategy())
 
+open_value, close_value, volume, market_capitalization = context.scrape(url)
 open_value2, close_value2, volume2, market_capitalization2 = context2.scrape(url)
 
+data = [open_value, close_value, volume, market_capitalization]
 data2 = [open_value2, close_value2, volume2, market_capitalization2]
 
-filename = context.scrape(url)
-filename2 = sys.argv[1]
+filename = sys.argv[1]
+filename2 = sys.argv[2]
 
+context._strategy.export_to_json(data, filename)
 context2._strategy.export_to_json(data2, filename2)
 
 print(f'Exporto a {filename}')
